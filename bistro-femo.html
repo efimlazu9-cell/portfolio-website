@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bistro Femo • Döner, Burger, Pizza & Co.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --card-bg: #1c1f24;
+      --border: #2c323b;
+      --primary: #e63946;
+      --accent: #2a9d8f;
+      --text: #f8f9fa;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Фоновое видео */
+    .video-bg-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+      background-color: #121417; /* Страховка, пока видео грузится */
+    }
+
+    .video-bg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.28) contrast(1.1) blur(1px);
+      transform: scale(1.04);
+    }
+
+    .video-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(18, 20, 23, 0.4) 0%, rgba(18, 20, 23, 0.85) 100%);
+    }
+
+    body {
+      background-color: transparent;
+      color: var(--text);
+      padding-bottom: 90px;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 20px 16px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .badge-halal {
+      display: inline-block;
+      background: rgba(42, 157, 143, 0.2);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+
+    h1 span {
+      color: var(--primary);
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(28, 31, 36, 0.82) !important;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 12px;
+      font-size: 13px;
+      margin-top: 14px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      background-color: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #22c55e;
+    }
+
+    .nav-tabs {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(18, 20, 23, 0.94);
+      backdrop-filter: blur(8px);
+      display: flex;
+      gap: 8px;
+      padding: 12px 0;
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    .nav-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+
+    .tab-btn:hover, .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .section-title {
+      font-size: 19px;
+      font-weight: 700;
+      margin: 28px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sub-banner {
+      background: rgba(31, 37, 46, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-left: 3px solid var(--accent);
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+
+    .sub-banner strong {
+      color: var(--text);
+    }
+
+    .menu-card {
+      background: rgba(28, 31, 36, 0.82) !important;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .menu-info {
+      flex: 1;
+    }
+
+    .menu-name {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .menu-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    .item-tag {
+      font-size: 10px;
+      background: #331e21;
+      color: #ff7b87;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+      font-weight: 600;
+    }
+
+    .menu-price {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      background: #252a32;
+      padding: 6px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .extras-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .extra-item {
+      background: rgba(23, 26, 31, 0.85);
+      border: 1px dashed var(--border);
+      padding: 10px 12px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    .sticky-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(18, 20, 23, 0.95);
+      border-top: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+      z-index: 100;
+    }
+
+    .btn-action {
+      flex: 1;
+      max-width: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      transition: 0.15s;
+    }
+
+    .btn-call {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-maps {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Фон с видео -->
+  <div class="video-bg-container">
+    <video class="video-bg" autoplay muted loop playsinline>
+      <source src="bg.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <span class="badge-halal">100% Halal Fleisch</span>
+      <h1>Bistro <span>Femo</span></h1>
+      <p class="subtitle">Döner Kebab • Burger • Pizza • Falafel</p>
+      
+      <div class="status-bar">
+        <div class="dot"></div>
+        <span><strong>Täglich frisch</strong> • Am Kanal, Potsdam</span>
+      </div>
+    </header>
+
+    <nav class="nav-tabs">
+      <a href="#doener" class="tab-btn active">🥙 Döner Gerichte</a>
+      <a href="#burger" class="tab-btn">🍔 Burger & Snacks</a>
+      <a href="#getraenke-kalt" class="tab-btn">🥤 Kalte Getränke</a>
+      <a href="#getraenke-warm" class="tab-btn">☕ Warme Getränke</a>
+    </nav>
+
+    <!-- РАЗДЕЛ: ДЁНЕР -->
+    <div id="doener" class="section-title">🥙 Döner Gerichte</div>
+    
+    <div class="sub-banner">
+      Wahlweise mit <strong>Rindfleisch</strong> oder <strong>Chickendönerfleisch</strong>.<br>
+      Hausgemachte Soßen: <em>Kräuter, Knoblauch, Scharf, Curry</em>
+    </div>
+
+    <div class="extras-grid">
+      <div class="extra-item">
+        <span>Extra Fleisch</span>
+        <strong>2,00 €</strong>
+      </div>
+      <div class="extra-item">
+        <span>Extra Käse</span>
+        <strong>0,50 €</strong>
+      </div>
+      <div class="extra-item">
+        <span>Schale Soße</span>
+        <strong>0,50 €</strong>
+      </div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Döner <span class="item-tag">Bestseller</span></div>
+        <div class="menu-desc">Mit Salat und Soße im knusprigen Fladenbrot</div>
+      </div>
+      <div class="menu-price">4,00 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Chicken-Döner</div>
+        <div class="menu-desc">Mit gewürztem Hähnchenfleisch, Salat und Soße im Brot</div>
+      </div>
+      <div class="menu-price">4,00 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Big Döner</div>
+        <div class="menu-desc">Großes Fladenbrot mit einer extra Portion Fleisch und Salat</div>
+      </div>
+      <div class="menu-price">4,80 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Döner Hawaii</div>
+        <div class="menu-desc">Mit Salat, saftiger Ananasscheibe und Soße im Fladenbrot</div>
+      </div>
+      <div class="menu-price">4,50 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Dürüm Döner</div>
+        <div class="menu-desc">Frisch gerollte Teigrolle mit Fleisch, buntem Salat und Soße</div>
+      </div>
+      <div class="menu-price">4,50 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Döner Box</div>
+        <div class="menu-desc">Wahlweise mit Pommes oder frischem Beilagensalat</div>
+      </div>
+      <div class="menu-price">3,80 € <span style="font-size:11px;color:#94a3b8;">/ Gr. 4,80 €</span></div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Döner Teller</div>
+        <div class="menu-desc">Serviert mit Pommes frites, frischem Salat und Soße</div>
+      </div>
+      <div class="menu-price">6,00 € <span style="font-size:11px;color:#94a3b8;">/ Gr. 7,50 €</span></div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Türkische Pizza (Lahmacun)</div>
+        <div class="menu-desc">Dünner Teigboden mit Hackfleischbelag (pur)</div>
+      </div>
+      <div class="menu-price">1,50 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Türkische Pizza mit Salat & Soße</div>
+        <div class="menu-desc">Eingerollt mit frischem gemischten Salat und hausgemachter Soße</div>
+      </div>
+      <div class="menu-price">3,50 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Türkische Pizza komplett</div>
+        <div class="menu-desc">Gefüllt mit Dönerfleisch, frischem Salat und Soße</div>
+      </div>
+      <div class="menu-price">4,80 €</div>
+    </div>
+
+    <!-- РАЗДЕЛ: БУРГЕРЫ И ЗАКУСКИ -->
+    <div id="burger" class="section-title">🍔 Burger & Co.</div>
+
+    <div class="sub-banner">
+      Burger werden aus <strong>125 g Rinderhackfleisch</strong> zubereitet und mit Tomaten, Zwiebeln, Eisbergsalat, Gewürzgurken & Spezialsoße angerichtet.
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Hamburger <span class="item-tag">Menü 7: 7,00 €</span></div>
+        <div class="menu-desc">125g Rindfleisch mit klassischer Burger-Garnitur</div>
+      </div>
+      <div class="menu-price">3,50 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Cheeseburger</div>
+        <div class="menu-desc">125g saftiges Rindfleisch mit würzigem Schmelzkäse</div>
+      </div>
+      <div class="menu-price">4,00 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Crispy Burger</div>
+        <div class="menu-desc">Knusprig paniertes Hähnchenbrustfilet mit Salat und Soße</div>
+      </div>
+      <div class="menu-price">4,00 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Pommes frites</div>
+        <div class="menu-desc">Knusprig frittiert mit Ketchup oder Mayonnaise</div>
+      </div>
+      <div class="menu-price">2,00 € <span style="font-size:11px;color:#94a3b8;">/ Gr. 3,50 €</span></div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Currywurst <span class="item-tag">Menü 8: 5,00 €</span></div>
+        <div class="menu-desc">Klassische Bratwurst mit herzhafter Currysauce</div>
+      </div>
+      <div class="menu-price">2,00 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Currywurst Teller</div>
+        <div class="menu-desc">Portion Currywurst serviert mit knusprigen Pommes frites</div>
+      </div>
+      <div class="menu-price">4,00 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Schnitzel (Hähnchen)</div>
+        <div class="menu-desc">Paniertes Hähnchenformschnitzel einzeln</div>
+      </div>
+      <div class="menu-price">2,50 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Schnitzel Teller</div>
+        <div class="menu-desc">Paniertes Hähnchenschnitzel serviert mit einer Portion Pommes</div>
+      </div>
+      <div class="menu-price">4,00 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Chicken Nuggets <span class="item-tag">Menü 9: 6,00 €</span></div>
+        <div class="menu-desc">Knusprige Nuggets mit Sauce nach Wahl</div>
+      </div>
+      <div class="menu-price">2,50 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Chicken Nuggets Teller</div>
+        <div class="menu-desc">Knusprige Chicken Nuggets serviert mit Pommes frites</div>
+      </div>
+      <div class="menu-price">4,00 €</div>
+    </div>
+
+    <!-- РАЗДЕЛ: ХОЛОДНЫЕ НАПИТКИ -->
+    <div id="getraenke-kalt" class="section-title">🥤 Erfrischungsgetränke</div>
+    
+    <div class="sub-banner">
+      Alle Preise verstehen sich <strong>außer Haus zzgl. Pfand</strong>.
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Cola / Fanta / Sprite</div>
+        <div class="menu-desc">Erfrischende Klassiker gekühlt</div>
+      </div>
+      <div class="menu-price">0,33l: 1,50 € <br><span style="font-size:12px;color:#94a3b8;">0,5l: 2,00 €</span></div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Ayran (0,25l)</div>
+        <div class="menu-desc">Traditionelles türkisches Joghurtgetränk</div>
+      </div>
+      <div class="menu-price">1,30 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">fritz-kola (0,33l)</div>
+        <div class="menu-desc">Viel Koffein, echter Geschmack</div>
+      </div>
+      <div class="menu-price">1,60 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Uludağ Gazoz (0,33l)</div>
+        <div class="menu-desc">Türkische Kult-Limonade</div>
+      </div>
+      <div class="menu-price">1,50 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Club-Mate</div>
+        <div class="menu-desc">Koffeinreiches Erfrischungsgetränk (auch als Cola)</div>
+      </div>
+      <div class="menu-price">0,33l: 1,50 € <br><span style="font-size:12px;color:#94a3b8;">0,5l: 1,50 €</span></div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Eistee (0,5l)</div>
+        <div class="menu-desc">Erfrischender Eistee fruchtig-kühl</div>
+      </div>
+      <div class="menu-price">2,00 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Wasser (0,5l)</div>
+        <div class="menu-desc">Stilles Wasser oder Mineralwasser mit Sprudel</div>
+      </div>
+      <div class="menu-price">1,00 € / 1,50 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Multivitaminsaft / Rubin (0,33l)</div>
+        <div class="menu-desc">Fruchtige Säfte aus der Flasche</div>
+      </div>
+      <div class="menu-price">1,50 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Lift Apfelschorle (0,5l)</div>
+        <div class="menu-desc">Fruchtige Erfrischung</div>
+      </div>
+      <div class="menu-price">1,80 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Malzbier (0,33l)</div>
+        <div class="menu-desc">Alkoholfreier Malztrunk</div>
+      </div>
+      <div class="menu-price">1,50 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Red Bull (0,25l)</div>
+        <div class="menu-desc">Energy Drink</div>
+      </div>
+      <div class="menu-price">2,00 €</div>
+    </div>
+
+    <!-- РАЗДЕЛ: ГОРЯЧИЕ НАПИТКИ -->
+    <div id="getraenke-warm" class="section-title">☕ Warme Getränke</div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Tee (diverse Sorten)</div>
+        <div class="menu-desc">Schwarzer Tee, Kräuter- oder Früchtetee</div>
+      </div>
+      <div class="menu-price">1,00 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Kaffee</div>
+        <div class="menu-desc">Frisch gebrühter Filterkaffee</div>
+      </div>
+      <div class="menu-price">1,20 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Espresso</div>
+        <div class="menu-desc">Kräftig und intensiv</div>
+      </div>
+      <div class="menu-price">1,30 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Cappuccino</div>
+        <div class="menu-desc">Mit feinem Milchschaum</div>
+      </div>
+      <div class="menu-price">1,50 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Milchkaffee / Latte Macchiato</div>
+        <div class="menu-desc">Mit viel aufgeschäumter Milch</div>
+      </div>
+      <div class="menu-price">1,80 €</div>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-info">
+        <div class="menu-name">Heiße Schokolade</div>
+        <div class="menu-desc">Cremig und schokoladig</div>
+      </div>
+      <div class="menu-price">1,20 €</div>
+    </div>
+
+  </div>
+
+  <div class="sticky-bar">
+    <a href="tel:+491700000000" class="btn-action btn-call">📞 Jetzt Anrufen</a>
+    <a href="https://www.google.com/maps/search/?api=1&query=Karl-Liebknecht-Straße+137,+14482+Potsdam-Babelsberg" target="_blank" class="btn-action btn-maps">📍 Route auf Maps</a>
+  </div>
+
+</body>
+</html>
